@@ -1,0 +1,15 @@
+<resources>
+    <!-- Design tokens: tweak these once the design is final. -->
+    <dimen name="icon_size">56dp</dimen>
+    <dimen name="icon_corner_radius">14dp</dimen>
+    <dimen name="item_padding">8dp</dimen>
+    <dimen name="dock_margin">12dp</dimen>
+    <dimen name="dock_corner_radius">28dp</dimen>
+    <dimen name="dock_padding">10dp</dimen>
+    <dimen name="search_corner_radius">28dp</dimen>
+    <dimen name="label_text_size">12sp</dimen>
+    <integer name="home_columns">4</integer>
+    <integer name="home_rows">5</integer>
+    <integer name="drawer_columns">4</integer>
+</resources>
+
