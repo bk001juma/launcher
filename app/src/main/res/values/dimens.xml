@@ -1,15 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Design tokens: tweak these once the design is final. -->
-    <dimen name="icon_size">56dp</dimen>
-    <dimen name="icon_corner_radius">14dp</dimen>
+    <!-- Core UI -->
+    <dimen name="icon_size">52dp</dimen>
+    <dimen name="dock_icon_size">46dp</dimen>
+    <dimen name="label_text_size">11sp</dimen>
     <dimen name="item_padding">8dp</dimen>
+    <dimen name="icon_corner_radius">14dp</dimen>
     <dimen name="dock_margin">12dp</dimen>
-    <dimen name="dock_corner_radius">28dp</dimen>
     <dimen name="dock_padding">10dp</dimen>
-    <dimen name="search_corner_radius">28dp</dimen>
-    <dimen name="label_text_size">12sp</dimen>
+    
+    <!-- Sun Clock -->
+    <dimen name="sun_diameter">120dp</dimen>
+    <dimen name="sun_clock_text_size">26sp</dimen>
+    <dimen name="sun_date_text_size">11sp</dimen>
+    
+    <!-- Dock & Search -->
+    <dimen name="dock_height">72dp</dimen>
+    <dimen name="dock_corner_radius">36dp</dimen>
+    <dimen name="search_height">44dp</dimen>
+    <dimen name="search_corner_radius">22dp</dimen>
+    
+    <!-- Constellation Node -->
+    <dimen name="hexagon_size">64dp</dimen>
+    <dimen name="hexagon_icon_size">32dp</dimen>
+    <dimen name="category_title_size">13sp</dimen>
+    
+    <!-- Astrolabe -->
+    <dimen name="astrolabe_radius">110dp</dimen>
+
+    <!-- Grid Integers -->
     <integer name="home_columns">4</integer>
     <integer name="home_rows">5</integer>
     <integer name="drawer_columns">4</integer>
 </resources>
-

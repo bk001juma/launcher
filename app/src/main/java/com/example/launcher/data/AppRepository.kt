@@ -6,37 +6,90 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 
-/** Loads launchable apps and resolves the default dock apps. */
 class AppRepository(private val context: Context) {
 
     private val pm = context.packageManager
 
-    /** All launchable apps except this launcher, sorted by label. Call off the main thread. */
     fun loadApps(): List<AppInfo> {
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         return pm.queryIntentActivities(intent, 0)
             .filter { it.activityInfo.packageName != context.packageName }
             .map {
-                AppInfo(
-                    label = it.loadLabel(pm).toString(),
-                    component = ComponentName(it.activityInfo.packageName, it.activityInfo.name),
-                    icon = it.loadIcon(pm),
-                )
+                val label = it.loadLabel(pm).toString()
+                val pkg = it.activityInfo.packageName
+                val component = ComponentName(pkg, it.activityInfo.name)
+                val icon = it.loadIcon(pm)
+                val category = detectCategory(label, pkg)
+                AppInfo(label = label, component = component, icon = icon, category = category)
             }
             .sortedBy { it.label.lowercase() }
     }
 
-    /** Default dock: dialer, messages, browser, camera (whichever are available). */
+    private fun detectCategory(label: String, pkg: String): AppCategory {
+        val l = label.lowercase()
+        val p = pkg.lowercase()
+
+        // Social / Communication
+        if (p.contains("message") || p.contains("mms") || p.contains("sms") ||
+            p.contains("contact") || p.contains("whatsapp") || p.contains("telegram") ||
+            p.contains("instagram") || p.contains("facebook") || p.contains("twitter") ||
+            p.contains("social") || p.contains("mail") || p.contains("gmail") ||
+            p.contains("discord") || p.contains("reddit") || p.contains("signal") ||
+            l.contains("chat") || l.contains("social") || l.contains("messenger")
+        ) {
+            return AppCategory.SOCIAL
+        }
+
+        // Media & Entertainment
+        if (p.contains("music") || p.contains("audio") || p.contains("spotify") ||
+            p.contains("camera") || p.contains("gallery") || p.contains("photos") ||
+            p.contains("video") || p.contains("youtube") || p.contains("netflix") ||
+            p.contains("media") || p.contains("player") || p.contains("sound") ||
+            p.contains("podcast") || l.contains("music") || l.contains("camera") ||
+            l.contains("photo") || l.contains("gallery") || l.contains("video")
+        ) {
+            return AppCategory.MEDIA
+        }
+
+        // System
+        if (p.contains("android") || p.contains("setting") || p.contains("vending") ||
+            p.contains("system") || p.contains("calculator") || p.contains("clock") ||
+            p.contains("dialer") || p.contains("phone") || p.contains("security") ||
+            p.contains("file") || p.contains("download") || l.contains("setting") ||
+            l.contains("files") || l.contains("security")
+        ) {
+            return AppCategory.SYSTEM
+        }
+
+        return AppCategory.TOOLS
+    }
+
     fun defaultDockPackages(): List<String> {
         val intents = listOf(
             Intent(Intent.ACTION_DIAL),
             Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:")),
             Intent(Intent.ACTION_VIEW, Uri.parse("https://")),
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+            Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")),
+            Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         )
-        return intents.mapNotNull {
+        val resolved = intents.mapNotNull {
             pm.resolveActivity(it, 0)?.activityInfo?.packageName
-        }.distinct()
+        }.distinct().toMutableList()
+
+        // Also check popular music/browser packages if not filled
+        if (resolved.size < 5) {
+            val extras = listOf("com.spotify.music", "com.google.android.apps.maps", "com.android.chrome")
+            for (pkg in extras) {
+                if (!resolved.contains(pkg)) {
+                    try {
+                        pm.getPackageInfo(pkg, 0)
+                        resolved.add(pkg)
+                        if (resolved.size >= 5) break
+                    } catch (_: Exception) {}
+                }
+            }
+        }
+        return resolved
     }
 
     fun launch(app: AppInfo) {
@@ -47,4 +100,3 @@ class AppRepository(private val context: Context) {
         context.startActivity(intent)
     }
 }
-

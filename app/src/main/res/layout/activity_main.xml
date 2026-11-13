@@ -3,69 +3,169 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_cosmic_space"
     android:fitsSystemWindows="true">
 
-    <!-- Home screen: paged grid (iPhone style) + dock -->
-    <LinearLayout
-        android:id="@+id/home"
+    <!-- Custom Theme-Harmonized User Wallpaper -->
+    <ImageView
+        android:id="@+id/custom_wallpaper_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pager"
+    <!-- Cosmic Tint Overlay: Harmonizes any picture color into the cosmic dark gold/midnight palette -->
+    <View
+        android:id="@+id/wallpaper_theme_tint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#C0070B14"
+        android:visibility="gone" />
+
+    <!-- Ambient Cosmic Starfield Background -->
+    <com.example.launcher.ui.CosmicStarfieldView
+        android:id="@+id/starfield_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- ======================================================== -->
+    <!-- SCREEN 1: SOLAR ORBIT (Home Screen)                      -->
+    <!-- ======================================================== -->
+    <RelativeLayout
+        android:id="@+id/home_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Solar System Orbit View (Center Sun Clock + Planetary Apps) -->
+        <com.example.launcher.ui.SolarOrbitView
+            android:id="@+id/solar_orbit_view"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_height="match_parent" />
 
+        <!-- Floating Frosted Planetary Glass Dock (5 quick-access app orbs) -->
         <LinearLayout
-            android:id="@+id/page_dots"
+            android:id="@+id/bottom_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:id="@+id/dock_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dock_height"
+                android:background="@drawable/bg_dock_planetary"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp" />
+        </LinearLayout>
+
+        <!-- Freely Draggable Curved Orbital Search Bar ("Search apps, web...") -->
+        <LinearLayout
+            android:id="@+id/home_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/search_height"
+            android:layout_above="@id/bottom_controls"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_curved_search"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingVertical="8dp" />
+            android:paddingHorizontal="16dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dock"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dock_margin"
-            android:background="@drawable/bg_dock"
-            android:overScrollMode="never"
-            android:padding="@dimen/dock_padding" />
-    </LinearLayout>
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_search" />
 
-    <!-- App drawer: swipe up (Pixel style) with search -->
-    <LinearLayout
-        android:id="@+id/drawer"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="Search apps, web..."
+                android:textColor="#CCFFD54F"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- ======================================================== -->
+    <!-- SCREEN 2: CONSTELLATION UNIVERSE (App Drawer)            -->
+    <!-- ======================================================== -->
+    <RelativeLayout
+        android:id="@+id/drawer_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E6000000"
-        android:orientation="vertical"
+        android:background="#E606080F"
         android:visibility="gone">
 
-        <EditText
-            android:id="@+id/search"
+        <!-- Top "Search Universe" Bar -->
+        <LinearLayout
+            android:id="@+id/drawer_search_container"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_margin="16dp"
-            android:background="@drawable/bg_search"
-            android:hint="@string/search_apps"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:maxLines="1"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:paddingHorizontal="20dp"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B3FFFFFF" />
+            android:paddingTop="20dp"
+            android:paddingBottom="12dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/drawer_list"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/search_height"
+                android:background="@drawable/bg_search_universe"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_search" />
+
+                <EditText
+                    android:id="@+id/drawer_search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Search Universe"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_dim"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Scrollable Constellation Clusters (Hexagonal Network) -->
+        <ScrollView
+            android:id="@+id/drawer_scroll"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingHorizontal="8dp" />
-    </LinearLayout>
-</FrameLayout>
+            android:layout_height="match_parent"
+            android:layout_below="@id/drawer_search_container"
+            android:fillViewport="true"
+            android:overScrollMode="never">
 
+            <com.example.launcher.ui.ConstellationUniverseView
+                android:id="@+id/constellation_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="900dp" />
+        </ScrollView>
+
+        <!-- Bottom-Right Astrolabe A-Z Dial Widget -->
+        <com.example.launcher.ui.AstrolabeScrollerView
+            android:id="@+id/astrolabe_scroller"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+</FrameLayout>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Default Android Template Colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,4 +8,37 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Cosmic Space Theme -->
+    <color name="cosmic_bg">#06080F</color>
+    <color name="cosmic_bg_gradient_end">#0D1322</color>
+    <color name="cosmic_nebula">#1A172844</color>
+
+    <!-- Solar Sun & Gold Elements -->
+    <color name="gold_primary">#FFD54F</color>
+    <color name="gold_secondary">#FFA000</color>
+    <color name="gold_glow">#80FFA000</color>
+    <color name="gold_subtle">#B3E6A15C</color>
+    <color name="gold_dim">#26FFB300</color>
+    <color name="orbit_ring">#33FFD54F</color>
+    <color name="orbit_ring_glow">#1AFFE082</color>
+
+    <!-- Constellation Colors -->
+    <color name="system_bronze">#DDA15E</color>
+    <color name="system_glow">#66DDA15E</color>
+    <color name="media_cyan">#4FC3F7</color>
+    <color name="media_glow">#660288D1</color>
+    <color name="social_amber">#FFB74D</color>
+    <color name="social_glow">#66F57C00</color>
+
+    <!-- Glassmorphism -->
+    <color name="glass_surface">#33131D2E</color>
+    <color name="glass_stroke">#33FFE082</color>
+    <color name="glass_dock_bg">#40141F2B</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3FFFFFF</color>
+    <color name="text_gold">#FFD54F</color>
+    <color name="text_dim">#66FFFFFF</color>
 </resources>
