@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lock_screen_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#070A0F">
+
+    <!-- Neural Network & Cybernetic HUD Canvas -->
+    <com.example.launcher.ui.NeuralNetworkLockView
+        android:id="@+id/neural_network_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Bottom Controls & Swipe-Up to Unlock -->
+    <LinearLayout
+        android:id="@+id/lock_bottom_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="24dp">
+
+        <!-- Frosted Glass Notification Card -->
+        <LinearLayout
+            android:id="@+id/card_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            android:background="@drawable/bg_glass_notification"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="18dp"
+            android:paddingVertical="14dp">
+
+            <TextView
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_curved_search"
+                android:gravity="center"
+                android:text="🔔"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Notification"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Neural matrix synchronized &amp; ready"
+                    android:textColor="@color/text_dim"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="NOW"
+                android:textColor="@color/gold_primary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Swipe Up To Unlock Container -->
+        <LinearLayout
+            android:id="@+id/unlock_handle_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/icon_unlock_padlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔓"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/text_swipe_to_unlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.08"
+                android:text="Swipe up to unlock"
+                android:textColor="@color/text_dim"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Home Bar Indicator -->
+        <View
+            android:layout_width="120dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="#40FFFFFF" />
+    </LinearLayout>
+
+</FrameLayout>
+

@@ -31,9 +31,9 @@ class SolarOrbitView @JvmOverloads constructor(
     private var cx = 0f
     private var cy = 0f
 
-    // Rotation angles for orbits (Keplerian physics: inner orbits rotate faster)
-    private val orbitSpeeds = floatArrayOf(10.0f, 7.0f, 4.8f, 3.2f) // degrees per second
-    private val orbitRotations = floatArrayOf(0f, 0f, 0f, 0f)
+    // Celestial rotation: smooth, coordinated orbital revolution
+    private val celestialSpeed = 4.5f // degrees per second
+    private var systemRotation = 0f
 
     // User manual drag rotation offset
     private var manualRotation = 0f
@@ -147,9 +147,7 @@ class SolarOrbitView @JvmOverloads constructor(
                 val now = System.currentTimeMillis()
                 if (lastFrameTime > 0) {
                     val dt = (now - lastFrameTime) / 1000f
-                    for (i in orbitRotations.indices) {
-                        orbitRotations[i] = (orbitRotations[i] + orbitSpeeds[i] * dt) % 360f
-                    }
+                    systemRotation = (systemRotation + celestialSpeed * dt) % 360f
                     invalidate()
                 }
                 lastFrameTime = now
@@ -178,10 +176,25 @@ class SolarOrbitView @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
+    fun getAppsCount(): Int = apps.size
+
     fun setApps(newApps: List<AppInfo>) {
         this.apps = newApps
-        recalculatePlacements()
-        invalidate()
+        if (width > 0 && height > 0) {
+            cx = width / 2f
+            cy = height * 0.42f
+            recalculatePlacements()
+            invalidate()
+        } else {
+            post {
+                if (width > 0 && height > 0) {
+                    cx = width / 2f
+                    cy = height * 0.42f
+                    recalculatePlacements()
+                    invalidate()
+                }
+            }
+        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -189,6 +202,7 @@ class SolarOrbitView @JvmOverloads constructor(
         cx = w / 2f
         cy = h * 0.42f
         recalculatePlacements()
+        invalidate()
     }
 
     private fun recalculatePlacements() {
@@ -196,16 +210,51 @@ class SolarOrbitView @JvmOverloads constructor(
         if (apps.isEmpty() || width <= 0) return
 
         val count = apps.size
-        for (i in apps.indices) {
-            val orbitIdx = i % orbitRatios.size
-            val baseAngle = (i * (360f / count) + (orbitIdx * 32f)) % 360f
-            placedOrbs.add(
-                PlacedOrb(
-                    app = apps[i],
-                    orbitIndex = orbitIdx,
-                    angleDeg = baseAngle
+
+        // Symmetrical celestial distribution across concentric orbits
+        val distribution = when (count) {
+            1 -> intArrayOf(0, 1, 0, 0)
+            2 -> intArrayOf(0, 1, 1, 0)
+            3 -> intArrayOf(0, 1, 2, 0)
+            4 -> intArrayOf(0, 1, 1, 2)
+            5 -> intArrayOf(1, 1, 1, 2)
+            6 -> intArrayOf(1, 1, 2, 2)
+            7 -> intArrayOf(1, 2, 2, 2)
+            8 -> intArrayOf(1, 2, 2, 3)
+            9 -> intArrayOf(1, 2, 3, 3)
+            10 -> intArrayOf(1, 2, 3, 4)
+            else -> {
+                val o0 = 1
+                val o1 = max(1, count / 5)
+                val o2 = max(2, (count * 2) / 5)
+                val o3 = count - (o0 + o1 + o2)
+                intArrayOf(o0, o1, o2, o3)
+            }
+        }
+
+        // Elegant celestial spiral offsets for each ring
+        val phaseOffsets = floatArrayOf(45f, 10f, 30f, 15f)
+
+        var appIdx = 0
+        for (orbitIdx in 0..3) {
+            val numAppsOnOrbit = distribution[orbitIdx]
+            if (numAppsOnOrbit <= 0) continue
+
+            val step = 360f / numAppsOnOrbit
+            val basePhase = phaseOffsets[orbitIdx]
+
+            for (j in 0 until numAppsOnOrbit) {
+                if (appIdx >= apps.size) break
+                val angle = (basePhase + j * step) % 360f
+                placedOrbs.add(
+                    PlacedOrb(
+                        app = apps[appIdx],
+                        orbitIndex = orbitIdx,
+                        angleDeg = angle
+                    )
                 )
-            )
+                appIdx++
+            }
         }
     }
 
@@ -215,15 +264,15 @@ class SolarOrbitView @JvmOverloads constructor(
 
         val baseRadius = width.toFloat()
 
-        // 1. Draw Concentric Orbital Ellipses & Keplerian Star Beads
+        // 1. Draw Concentric Orbital Ellipses & Celestial Star Beads
         for (i in orbitRatios.indices) {
             val rx = baseRadius * orbitRatios[i]
             val ry = rx * yRatio
             val rect = RectF(cx - rx, cy - ry, cx + rx, cy + ry)
             canvas.drawOval(rect, orbitPaint)
 
-            // Small starlight beads revolving along each orbit
-            val beadAngle = Math.toRadians((i * 65f + orbitRotations[i] + manualRotation).toDouble())
+            // Small starlight beads revolving smoothly along each orbit
+            val beadAngle = Math.toRadians((i * 65f + systemRotation * 0.8f + manualRotation).toDouble())
             val bx = cx + (rx * cos(beadAngle)).toFloat()
             val by = cy + (ry * sin(beadAngle)).toFloat()
             canvas.drawCircle(bx, by, 3.5f, starDotPaint)
@@ -232,11 +281,11 @@ class SolarOrbitView @JvmOverloads constructor(
         // 2. Draw Central Sun / Clock Core
         drawCentralSun(canvas)
 
-        // 3. Draw Planetary Apps orbiting continuously at Keplerian speeds
+        // 3. Draw Planetary Apps maintaining their clean geometric shape in synchronized revolution
         for (orb in placedOrbs) {
             val rx = baseRadius * orbitRatios[orb.orbitIndex]
             val ry = rx * yRatio
-            val totalAngle = orb.angleDeg + orbitRotations[orb.orbitIndex] + manualRotation
+            val totalAngle = orb.angleDeg + systemRotation + manualRotation
             val rad = Math.toRadians(totalAngle.toDouble())
 
             orb.currentX = cx + (rx * cos(rad)).toFloat()

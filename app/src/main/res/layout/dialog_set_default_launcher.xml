@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_cosmic_dialog"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="28dp">
+
+    <!-- Top Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="#40FFFFFF" />
+
+    <!-- Icon & Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="🪐"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Set as Default Launcher"
+                android:textColor="@color/gold_primary"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Celestial Home Screen"
+                android:textColor="@color/text_dim"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="24dp"
+        android:lineSpacingExtra="4dp"
+        android:text="Make Cosmic Launcher your permanent home screen to experience harmonic planetary orbits, draggable universal search, and constellation app browsing whenever you unlock your device or press the Home button."
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_default_cancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_customization_card"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.05"
+            android:text="NOT NOW"
+            android:textColor="@color/text_dim"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/btn_default_confirm"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1.3"
+            android:background="@drawable/bg_golden_button"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:letterSpacing="0.05"
+            android:text="SET AS DEFAULT"
+            android:textColor="#0B101B"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>
+

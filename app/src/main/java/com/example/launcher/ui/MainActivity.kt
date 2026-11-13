@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
@@ -48,6 +49,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Default Launcher Role Picker Launcher
+    private val defaultLauncherResult = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (isDefaultLauncher()) {
+            android.widget.Toast.makeText(this, "✨ Cosmic Launcher is now your default home!", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     // Screen 2: Constellation Universe Drawer
     private lateinit var drawerScreen: View
     private lateinit var drawerSearchInput: EditText
@@ -61,7 +71,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var swipeDetector: GestureDetector
 
     private val packageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) = loadInstalledApps()
+        override fun onReceive(context: Context?, intent: Intent?) {
+            repo.clearCache()
+            loadInstalledApps(isInstantCacheBound = false, forceReload = true)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +87,25 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         setupGestures()
 
-        loadInstalledApps()
+        // 1. Instant Cache Binding: 0ms latency on launch / re-entry
+        val cached = repo.getCachedApps()
+        val cachedDock = repo.getCachedDockPackages()
+        if (!cached.isNullOrEmpty()) {
+            bindData(cached, cachedDock ?: emptyList())
+        }
+
+        // 2. Progressive Fast-Loader (instant Solar apps, background Drawer)
+        loadInstalledApps(isInstantCacheBound = (!cached.isNullOrEmpty()))
+
+        checkFirstTimeDefaultLauncherPrompt()
+        startLockScreenService()
+    }
+
+    private fun startLockScreenService() {
+        try {
+            val serviceIntent = Intent(this, com.example.launcher.service.LockScreenService::class.java)
+            startService(serviceIntent)
+        } catch (_: Exception) {}
     }
 
     private fun initViews() {
@@ -204,6 +235,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupGestures() {
         swipeDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                if (drawerScreen.visibility != View.VISIBLE) {
+                    startActivity(Intent(this@MainActivity, LockScreenActivity::class.java))
+                    return true
+                }
+                return false
+            }
+
             override fun onFling(e1: MotionEvent?, e2: MotionEvent, vx: Float, vy: Float): Boolean {
                 if (e1 == null) return false
                 val dy = e2.y - e1.y
@@ -231,8 +270,21 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
-    private fun loadInstalledApps() {
+    private fun loadInstalledApps(isInstantCacheBound: Boolean = false, forceReload: Boolean = false) {
+        val savedSolar = getSavedSolarPackages()
+
         executor.execute {
+            // Stage 1: Ultra-fast Solar Orbits population (<15ms) if orbits are empty
+            if (!isInstantCacheBound || forceReload) {
+                val fastSolarApps = repo.loadSolarApps(savedSolar)
+                mainHandler.post {
+                    if (!isDestroyed && (solarOrbitView.getAppsCount() == 0 || forceReload)) {
+                        solarOrbitView.setApps(fastSolarApps)
+                    }
+                }
+            }
+
+            // Stage 2: Full background catalog indexing for Constellation Drawer & Dock
             val apps = repo.loadApps()
             val dockPkgs = repo.defaultDockPackages()
             mainHandler.post {
@@ -275,59 +327,194 @@ class MainActivity : AppCompatActivity() {
     private fun showSolarAppSelectionDialog() {
         if (allApps.isEmpty()) return
 
-        val savedPackages = getSavedSolarPackages()
-        val appNames = allApps.map { it.label }.toTypedArray()
-        val checkedItems = BooleanArray(allApps.size) { i ->
-            savedPackages.contains(allApps[i].packageName)
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Launcher_BottomSheetDialog)
+        val view = layoutInflater.inflate(R.layout.dialog_solar_apps_picker, null)
+        bottomSheet.setContentView(view)
+        bottomSheet.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        bottomSheet.setOnShowListener { dialog ->
+            val d = dialog as com.google.android.material.bottomsheet.BottomSheetDialog
+            d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.setBackgroundColor(Color.TRANSPARENT)
         }
 
-        val selectedSet = savedPackages.toMutableSet()
+        val savedPackages = getSavedSolarPackages()
+        val badge = view.findViewById<TextView>(R.id.selected_count_badge)
+        val searchInput = view.findViewById<EditText>(R.id.picker_search_input)
+        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.picker_recycler_view)
+        val btnSave = view.findViewById<TextView>(R.id.btn_save_orbits)
+        val btnReset = view.findViewById<TextView>(R.id.btn_reset_defaults)
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("🪐 Choose Solar System Apps")
-            .setMultiChoiceItems(appNames, checkedItems) { _, which, isChecked ->
-                val pkg = allApps[which].packageName
-                if (isChecked) {
-                    selectedSet.add(pkg)
-                } else {
-                    selectedSet.remove(pkg)
-                }
+        val initialCount = if (savedPackages.isNotEmpty()) savedPackages.size else 10
+        badge.text = "$initialCount selected"
+
+        val adapter = SolarAppPickerAdapter(allApps, savedPackages) { count ->
+            badge.text = "$count selected"
+        }
+        recyclerView.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 4)
+        recyclerView.adapter = adapter
+
+        searchInput.doAfterTextChanged {
+            adapter.filter(it?.toString().orEmpty())
+        }
+
+        btnSave.setOnClickListener {
+            saveSolarPackages(adapter.selectedPackages)
+            val newSolarApps = if (adapter.selectedPackages.isNotEmpty()) {
+                allApps.filter { adapter.selectedPackages.contains(it.packageName) }
+            } else {
+                allApps.take(10)
             }
-            .setPositiveButton("Save & Orbit") { _, _ ->
-                saveSolarPackages(selectedSet)
-                val newSolarApps = if (selectedSet.isNotEmpty()) {
-                    allApps.filter { selectedSet.contains(it.packageName) }
-                } else {
-                    allApps.take(10)
-                }
-                solarOrbitView.setApps(newSolarApps)
-            }
-            .setNegativeButton("Cancel", null)
-            .setNeutralButton("Reset Default") { _, _ ->
-                saveSolarPackages(emptySet())
-                solarOrbitView.setApps(allApps.take(10))
-            }
-            .show()
+            solarOrbitView.setApps(newSolarApps)
+            bottomSheet.dismiss()
+        }
+
+        btnReset.setOnClickListener {
+            saveSolarPackages(emptySet())
+            solarOrbitView.setApps(allApps.take(10))
+            bottomSheet.dismiss()
+        }
+
+        bottomSheet.show()
     }
 
     private fun showCosmicCustomizationMenu() {
-        val options = arrayOf(
-            "🪐 Choose Solar System Apps",
-            "🖼️ Set Custom Wallpaper (Theme Harmonized)",
-            "↺ Reset Default Space Wallpaper"
-        )
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Launcher_BottomSheetDialog)
+        val view = layoutInflater.inflate(R.layout.dialog_cosmic_customization, null)
+        bottomSheet.setContentView(view)
+        bottomSheet.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        bottomSheet.setOnShowListener { dialog ->
+            val d = dialog as com.google.android.material.bottomsheet.BottomSheetDialog
+            d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.setBackgroundColor(Color.TRANSPARENT)
+        }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("✨ Cosmic Customization")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> showSolarAppSelectionDialog()
-                    1 -> wallpaperPickerLauncher.launch("image/*")
-                    2 -> resetDefaultWallpaper()
+        // Configure Default Launcher Card
+        val isDefault = isDefaultLauncher()
+        val textStatus = view.findViewById<TextView>(R.id.text_default_launcher_status)
+        val badge = view.findViewById<TextView>(R.id.badge_default_launcher)
+        val icon = view.findViewById<TextView>(R.id.icon_default_launcher)
+
+        if (isDefault) {
+            icon.text = "⭐"
+            textStatus.text = "Active default home screen"
+            textStatus.setTextColor(0xFF80DEEA.toInt())
+            badge.text = "ACTIVE"
+            badge.setTextColor(0xFF80DEEA.toInt())
+        } else {
+            icon.text = "🏠"
+            textStatus.text = "Tap to set as your primary home app"
+            textStatus.setTextColor(0xFFFFD54F.toInt())
+            badge.text = "SET DEFAULT"
+            badge.setTextColor(0xFFFFD54F.toInt())
+        }
+
+        view.findViewById<View>(R.id.card_set_default_launcher).setOnClickListener {
+            bottomSheet.dismiss()
+            requestDefaultLauncher()
+        }
+
+        view.findViewById<View>(R.id.card_neural_lockscreen).setOnClickListener {
+            bottomSheet.dismiss()
+            startActivity(Intent(this, LockScreenActivity::class.java))
+        }
+
+        view.findViewById<View>(R.id.card_choose_solar_apps).setOnClickListener {
+            bottomSheet.dismiss()
+            showSolarAppSelectionDialog()
+        }
+
+        view.findViewById<View>(R.id.card_custom_wallpaper).setOnClickListener {
+            bottomSheet.dismiss()
+            wallpaperPickerLauncher.launch("image/*")
+        }
+
+        view.findViewById<View>(R.id.card_reset_space).setOnClickListener {
+            bottomSheet.dismiss()
+            resetDefaultWallpaper()
+        }
+
+        bottomSheet.show()
+    }
+
+    private fun isDefaultLauncher(): Boolean {
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(android.app.role.RoleManager::class.java)
+            roleManager?.isRoleHeld(android.app.role.RoleManager.ROLE_HOME) == true
+        } else {
+            val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+            val resolveInfo = packageManager.resolveActivity(intent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)
+            resolveInfo?.activityInfo?.packageName == packageName
+        }
+    }
+
+    private fun requestDefaultLauncher() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(android.app.role.RoleManager::class.java)
+            if (roleManager != null && roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_HOME)) {
+                if (!roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_HOME)) {
+                    val intent = roleManager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_HOME)
+                    defaultLauncherResult.launch(intent)
+                    return
+                } else {
+                    android.widget.Toast.makeText(this, "Cosmic Launcher is already your default home", android.widget.Toast.LENGTH_SHORT).show()
+                    return
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        // Fallback for Android 9 or below, or if RoleManager is not supported
+        try {
+            val homeSettingsIntent = Intent(android.provider.Settings.ACTION_HOME_SETTINGS)
+            if (homeSettingsIntent.resolveActivity(packageManager) != null) {
+                defaultLauncherResult.launch(homeSettingsIntent)
+                return
+            }
+        } catch (_: Exception) {}
+
+        try {
+            val manageAppsIntent = Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
+            if (manageAppsIntent.resolveActivity(packageManager) != null) {
+                defaultLauncherResult.launch(manageAppsIntent)
+                return
+            }
+        } catch (_: Exception) {}
+
+        try {
+            defaultLauncherResult.launch(Intent(android.provider.Settings.ACTION_SETTINGS))
+        } catch (_: Exception) {}
+    }
+
+    private fun checkFirstTimeDefaultLauncherPrompt() {
+        val prefs = getSharedPreferences("launcher_prefs", Context.MODE_PRIVATE)
+        val hasPrompted = prefs.getBoolean("has_prompted_default_home", false)
+        if (!hasPrompted && !isDefaultLauncher()) {
+            prefs.edit().putBoolean("has_prompted_default_home", true).apply()
+            mainHandler.postDelayed({
+                if (!isDestroyed && !isFinishing && !isDefaultLauncher()) {
+                    showSetDefaultLauncherDialog()
+                }
+            }, 1200)
+        }
+    }
+
+    private fun showSetDefaultLauncherDialog() {
+        val bottomSheet = com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.Theme_Launcher_BottomSheetDialog)
+        val view = layoutInflater.inflate(R.layout.dialog_set_default_launcher, null)
+        bottomSheet.setContentView(view)
+        bottomSheet.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(Color.TRANSPARENT))
+        bottomSheet.setOnShowListener { dialog ->
+            val d = dialog as com.google.android.material.bottomsheet.BottomSheetDialog
+            d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.setBackgroundColor(Color.TRANSPARENT)
+        }
+
+        view.findViewById<View>(R.id.btn_default_cancel).setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        view.findViewById<View>(R.id.btn_default_confirm).setOnClickListener {
+            bottomSheet.dismiss()
+            requestDefaultLauncher()
+        }
+
+        bottomSheet.show()
     }
 
     private fun saveAndApplyCustomWallpaper(uri: Uri) {
@@ -463,6 +650,16 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         solarOrbitView.startAnimation()
+
+        // Guard against any empty orbit state on re-entry
+        if (solarOrbitView.getAppsCount() == 0) {
+            val cached = repo.getCachedApps()
+            if (!cached.isNullOrEmpty()) {
+                bindData(cached, repo.getCachedDockPackages() ?: emptyList())
+            } else {
+                loadInstalledApps()
+            }
+        }
     }
 
     override fun onPause() {

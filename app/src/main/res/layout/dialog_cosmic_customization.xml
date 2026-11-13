@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_cosmic_dialog"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="28dp">
+
+    <!-- Top Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="#40FFFFFF" />
+
+    <!-- Header Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.15"
+        android:text="✨ COSMIC CUSTOMIZATION"
+        android:textColor="@color/gold_primary"
+        android:textSize="17sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="20dp"
+        android:text="Personalize your celestial solar system &amp; environment"
+        android:textColor="@color/text_dim"
+        android:textSize="12sp" />
+
+    <!-- Card 0: Default Launcher Status & Setup -->
+    <LinearLayout
+        android:id="@+id/card_set_default_launcher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_customization_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/icon_default_launcher"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="🏠"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Default Home Launcher"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/text_default_launcher_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Set as your primary device launcher"
+                android:textColor="@color/gold_primary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/badge_default_launcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_curved_search"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="SET"
+            android:textColor="@color/gold_primary"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- Card: Neural Network Lock Screen -->
+    <LinearLayout
+        android:id="@+id/card_neural_lockscreen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_customization_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="⚡"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Neural Network Lock Screen"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Bio-cybernetic animated synapses &amp; pulses"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_curved_search"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
+            android:text="PREVIEW"
+            android:textColor="@color/gold_primary"
+            android:textSize="11sp"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- Card 1: Solar System Apps -->
+    <LinearLayout
+        android:id="@+id/card_choose_solar_apps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_customization_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="🪐"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Solar System Apps"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Choose which apps orbit your central sun"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Card 2: Custom Wallpaper -->
+    <LinearLayout
+        android:id="@+id/card_custom_wallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_customization_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="🖼️"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Harmonized Wallpaper"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Pick any photo — automatically color-graded into cosmic dark"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Card 3: Reset Default Space -->
+    <LinearLayout
+        android:id="@+id/card_reset_space"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_customization_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_curved_search"
+            android:gravity="center"
+            android:text="↺"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Reset to Pure Space"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Restore the original deep-space nebula starfield"
+                android:textColor="@color/text_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
+

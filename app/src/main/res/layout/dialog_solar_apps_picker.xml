@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_cosmic_dialog"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="24dp">
+
+    <!-- Top Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="#40FFFFFF" />
+
+    <!-- Header Row -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp">
+
+        <TextView
+            android:id="@+id/dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.12"
+            android:text="🪐 SOLAR SYSTEM APPS"
+            android:textColor="@color/gold_primary"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/selected_count_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/bg_customization_card"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="0 selected"
+            android:textColor="@color/gold_primary"
+            android:textSize="11sp" />
+    </RelativeLayout>
+
+    <!-- Search Input -->
+    <EditText
+        android:id="@+id/picker_search_input"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_search_universe"
+        android:hint="Filter apps..."
+        android:paddingHorizontal="14dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_dim"
+        android:textSize="13sp" />
+
+    <!-- Apps Grid (4 columns) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/picker_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:clipToPadding="false"
+        android:overScrollMode="never" />
+
+    <!-- Bottom Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btn_reset_defaults"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_customization_card"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="Reset Defaults"
+            android:textColor="@color/text_dim"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/btn_save_orbits"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_golden_button"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:paddingHorizontal="24dp"
+            android:text="SAVE ORBITS"
+            android:textColor="#06080F"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>
+
